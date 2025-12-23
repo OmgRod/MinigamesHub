@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+#include <limits>
 
 #ifdef PLATFORM_WINDOWS
 #include <conio.h>

@@ -11,7 +11,7 @@ public:
     
     std::string getName() const override { return "Sudoku"; }
     std::string getDescription() const override { return "Classic number puzzle - fill 9x9 grid"; }
-    std::string getCategory() const override { return "Word & Language Games"; }
+    std::string getCategory() const override { return "Logic & Number Games"; }
 };
 
 #endif // SUDOKU_H
