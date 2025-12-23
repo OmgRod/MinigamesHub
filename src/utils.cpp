@@ -25,7 +25,7 @@ void clearScreen() {
 
 void pauseScreen() {
     std::cout << "\nPress Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 }
 
 std::string getInput(const std::string& prompt) {
