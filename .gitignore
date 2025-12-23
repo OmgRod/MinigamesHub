@@ -4,6 +4,7 @@ cmake-build-*/
 out/
 _codeql_build_dir/
 _codeql_detected_source_root
+_deps/
 
 # IDE files
 .vscode/
@@ -21,6 +22,8 @@ _codeql_detected_source_root
 *.so
 *.dylib
 *.dll
+*.a
+*.lib
 
 # CMake
 CMakeCache.txt
@@ -30,6 +33,9 @@ Makefile
 *.cmake
 !CMakeLists.txt
 !cmake/CPM.cmake
+
+# CPM downloads
+CPM_*/
 
 # macOS
 .DS_Store

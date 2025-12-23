@@ -8,7 +8,9 @@ A comprehensive collection of 50+ brain games and puzzles built with C++17.
 ✅ **Production-Ready** C++17 codebase
 ✅ **Cross-Platform** (Windows, Linux, macOS)
 ✅ **Modern CMake** build system with CPM package manager
-✅ **Interactive Console UI** with clean, intuitive controls
+✅ **Two Interfaces Available**:
+   - 🖥️ **GUI Version** - Polished graphical interface using Dear ImGui + SDL2
+   - 📟 **Console Version** - Traditional terminal-based interface
 ✅ **Modular Architecture** for easy extension
 
 ## Game Categories
@@ -81,8 +83,13 @@ A comprehensive collection of 50+ brain games and puzzles built with C++17.
 
 - C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
 - CMake 3.14 or higher
+- Git (for CPM package manager to download dependencies)
 
 ### Build Instructions
+
+#### GUI Version (Recommended)
+
+The GUI version uses Dear ImGui with SDL2 for a polished, modern interface:
 
 ```bash
 # Clone the repository
@@ -92,12 +99,30 @@ cd MinigamesHub
 # Create build directory
 mkdir build && cd build
 
-# Configure and build
+# Configure and build (GUI enabled by default)
 cmake ..
 cmake --build .
 
-# Run the game
+# Run the GUI version
 ./minigames_hub
+```
+
+#### Console Version
+
+For the traditional terminal-based interface:
+
+```bash
+# Same build process, then run:
+./minigames_hub_console
+```
+
+#### Disable GUI Build
+
+If you want to build only the console version:
+
+```bash
+cmake .. -DBUILD_GUI=OFF
+cmake --build .
 ```
 
 ### Platform-Specific Notes
@@ -106,14 +131,22 @@ cmake --build .
 ```bash
 cmake ..
 make -j$(nproc)
-./minigames_hub
+./minigames_hub         # GUI version
+./minigames_hub_console # Console version
 ```
 
 **Windows (Visual Studio):**
 ```bash
 cmake .. -G "Visual Studio 16 2019"
 cmake --build . --config Release
-.\Release\minigames_hub.exe
+.\Release\minigames_hub.exe          # GUI version
+.\Release\minigames_hub_console.exe  # Console version
+```
+
+**Windows (clang-cl/LLVM):**
+```bash
+cmake .. -G Ninja -DCMAKE_C_COMPILER="clang-cl.exe" -DCMAKE_CXX_COMPILER="clang-cl.exe"
+cmake --build .
 ```
 
 ## Architecture
@@ -136,13 +169,25 @@ MinigamesHub/
 │       ├── reflex/
 │       └── experimental/
 ├── src/               # Implementation files
-│   ├── main.cpp       # Entry point
+│   ├── main.cpp       # Console entry point
+│   ├── main_gui.cpp   # GUI entry point
 │   ├── game_engine.cpp
 │   ├── menu_system.cpp
 │   ├── utils.cpp
 │   └── games/         # Game implementations
 └── CMakeLists.txt     # CMake configuration
 ```
+
+## GUI Features
+
+The GUI version provides a modern, polished interface with:
+
+- 🎨 **Modern UI** - Clean, dark-themed interface using Dear ImGui
+- 🎯 **Easy Navigation** - Browse games by category
+- 📊 **Game Information** - View descriptions and categories for each game
+- 🖱️ **Mouse Support** - Click and double-click to navigate
+- 📐 **Resizable Window** - Adjust to your preferred size
+- 🎮 **SDL2 Backend** - Hardware-accelerated rendering
 
 ## Code Quality
 
@@ -152,6 +197,7 @@ MinigamesHub/
 - ✅ Cross-platform compatibility
 - ✅ Clean separation of concerns
 - ✅ Extensible plugin-style architecture
+- ✅ GUI and Console versions share same game logic
 
 ## Adding New Games
 
@@ -160,7 +206,7 @@ To add a new game:
 1. Create header in `include/games/<category>/<game_name>.h`
 2. Create implementation in `src/games/<category>/<game_name>.cpp`
 3. Inherit from `GameBase` and implement required methods
-4. Register the game in `src/main.cpp`
+4. Register the game in both `src/main.cpp` and `src/main_gui.cpp`
 5. Update CMakeLists.txt
 
 Example:

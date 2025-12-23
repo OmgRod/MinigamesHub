@@ -16,9 +16,51 @@ else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
+# Option to build with GUI
+option(BUILD_GUI "Build with GUI support" ON)
+
+# Add SDL2 and Dear ImGui via CPM
+if(BUILD_GUI)
+    CPMAddPackage(
+        NAME SDL2
+        VERSION 2.28.5
+        GITHUB_REPOSITORY libsdl-org/SDL
+        GIT_TAG release-2.28.5
+        OPTIONS
+            "SDL_SHARED OFF"
+            "SDL_STATIC ON"
+            "SDL_TEST OFF"
+    )
+
+    CPMAddPackage(
+        NAME imgui
+        VERSION 1.90.1
+        GITHUB_REPOSITORY ocornut/imgui
+        GIT_TAG v1.90.1
+        DOWNLOAD_ONLY YES
+    )
+
+    if(imgui_ADDED)
+        # Create ImGui library
+        add_library(imgui STATIC
+            ${imgui_SOURCE_DIR}/imgui.cpp
+            ${imgui_SOURCE_DIR}/imgui_demo.cpp
+            ${imgui_SOURCE_DIR}/imgui_draw.cpp
+            ${imgui_SOURCE_DIR}/imgui_tables.cpp
+            ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
+        )
+        target_include_directories(imgui PUBLIC 
+            ${imgui_SOURCE_DIR}
+            ${imgui_SOURCE_DIR}/backends
+        )
+        target_link_libraries(imgui PUBLIC SDL2::SDL2-static)
+    endif()
+endif()
+
 # Source files
 set(SOURCES
-    src/main.cpp
     src/game_engine.cpp
     src/menu_system.cpp
     src/utils.cpp
@@ -155,20 +197,49 @@ set(HEADERS
     include/games/experimental/ai_judge.h
 )
 
-# Create executable
-add_executable(minigames_hub ${SOURCES} ${HEADERS})
+# Create console executable
+add_executable(minigames_hub_console src/main.cpp ${SOURCES} ${HEADERS})
+target_include_directories(minigames_hub_console PRIVATE include)
 
-# Include directories
-target_include_directories(minigames_hub PRIVATE include)
+# Create GUI executable
+if(BUILD_GUI)
+    add_executable(minigames_hub src/main_gui.cpp ${SOURCES} ${HEADERS})
+    target_include_directories(minigames_hub PRIVATE include)
+    target_link_libraries(minigames_hub PRIVATE SDL2::SDL2-static imgui)
+    target_compile_definitions(minigames_hub PRIVATE BUILD_GUI)
+    
+    # Copy SDL2 DLLs on Windows
+    if(WIN32)
+        add_custom_command(TARGET minigames_hub POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:SDL2::SDL2>
+            $<TARGET_FILE_DIR:minigames_hub>
+        )
+    endif()
+endif()
 
-# Platform-specific settings
+# Platform-specific settings for console version
 if(WIN32)
-    target_compile_definitions(minigames_hub PRIVATE PLATFORM_WINDOWS)
+    target_compile_definitions(minigames_hub_console PRIVATE PLATFORM_WINDOWS)
 elseif(UNIX AND NOT APPLE)
-    target_compile_definitions(minigames_hub PRIVATE PLATFORM_LINUX)
+    target_compile_definitions(minigames_hub_console PRIVATE PLATFORM_LINUX)
 elseif(APPLE)
-    target_compile_definitions(minigames_hub PRIVATE PLATFORM_MACOS)
+    target_compile_definitions(minigames_hub_console PRIVATE PLATFORM_MACOS)
+endif()
+
+# Platform-specific settings for GUI version
+if(BUILD_GUI)
+    if(WIN32)
+        target_compile_definitions(minigames_hub PRIVATE PLATFORM_WINDOWS)
+    elseif(UNIX AND NOT APPLE)
+        target_compile_definitions(minigames_hub PRIVATE PLATFORM_LINUX)
+    elseif(APPLE)
+        target_compile_definitions(minigames_hub PRIVATE PLATFORM_MACOS)
+    endif()
 endif()
 
 # Installation
-install(TARGETS minigames_hub DESTINATION bin)
+install(TARGETS minigames_hub_console DESTINATION bin)
+if(BUILD_GUI)
+    install(TARGETS minigames_hub DESTINATION bin)
+endif()
